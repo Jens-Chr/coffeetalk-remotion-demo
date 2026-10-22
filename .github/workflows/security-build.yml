@@ -1,0 +1,27 @@
+name: Security and build checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24.22.1"
+          cache: npm
+      - name: Verify patched Node.js runtime
+        run: node --version && test "$(node -p process.versions.node)" = "24.22.1"
+      - run: npm ci
+      - run: npm audit
+      - run: npm run lint
+      - run: npm run build
